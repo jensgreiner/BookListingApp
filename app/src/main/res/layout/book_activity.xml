@@ -3,12 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <android.support.v7.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <!-- Layout for a list of books -->
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:layout_below="@id/search_view"
         android:orientation="vertical" />
 
     <!-- Empty view is only visible when the list has no items. -->
@@ -26,4 +31,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
+
 </RelativeLayout>
