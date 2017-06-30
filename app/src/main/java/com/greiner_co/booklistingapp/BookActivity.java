@@ -3,13 +3,17 @@ package com.greiner_co.booklistingapp;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,9 +23,9 @@ import java.util.List;
 public class BookActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>> {
 
     private static final String LOG_TAG = BookActivity.class.getName();
-    private static final String BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q=android";
     private TextView mEmptyListTextView;
     private BookAdapter mAdapter;
+    private SearchView mSearchView;
 
     /**
      * Constant value for the book loader ID. We can choose any integer.
@@ -29,20 +33,29 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
      */
     private static final int BOOK_LOADER_ID = 1;
 
+    private View mLoadingIndicator;
+    private String mQuery;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_activity);
+
+        mSearchView = (SearchView) findViewById(R.id.search_view);
+        //mSearchView.setSubmitButtonEnabled(true);
 
         ListView bookListView = (ListView) findViewById(R.id.list);
 
         // Find empty list TextView
         mEmptyListTextView = (TextView) findViewById(R.id.empty_view_message);
         bookListView.setEmptyView(mEmptyListTextView);
-        
-        mAdapter = new BookAdapter(this, new ArrayList<Book>());
+
+        final List<Book> books = new ArrayList<Book>();
+        mAdapter = new BookAdapter(this, books);
         
         bookListView.setAdapter(mAdapter);
+
+        mLoadingIndicator = findViewById(R.id.loading_spinner);
 
         // Check for network state
         if (internetIsConnected()) {
@@ -57,20 +70,90 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             loaderManager.initLoader(BOOK_LOADER_ID, null, this);
         } else {
             // Hide the progressBar spinner after loading
-            View loadingIndicator = findViewById(R.id.loading_spinner);
-            loadingIndicator.setVisibility(View.GONE);
+            mLoadingIndicator.setVisibility(View.GONE);
 
             // Set empty state text to display
             mEmptyListTextView.setText(R.string.no_internet_connection_text);
         }
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if(internetIsConnected()) {
+                    // Hide the progressBar spinner after loading
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+
+                    getLoaderManager().restartLoader(0, null, BookActivity.this);
+                    return false;
+                } else {
+                    // Hide the progressBar spinner after loading
+                    mLoadingIndicator.setVisibility(View.GONE);
+
+                    // Set empty state text to display
+                    mEmptyListTextView.setText(R.string.no_internet_connection_text);
+                    return false;
+                }
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                // Do nothing
+                return false;
+            }
+
+
+        });
+
+        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                getLoaderManager().restartLoader(0, null, BookActivity.this);
+                return false;
+            }
+        });
+
+        //Set an OnClickListener on every item of the ListView
+        bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //Create a Uri with the link of the current Book Object
+                Uri link = Uri.parse(books.get(position).getmBookUrl());
+
+                //Create an Intent with the link
+                Intent webIntent = new Intent(Intent.ACTION_VIEW, link);
+
+                //If there is an App to handle the Intent, start it
+                if (webIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(webIntent);
+                }
+            }
+        });
         
+    }
+
+    // Save the state of the query during screen reconfigurations (portrait/landscape)
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        mQuery = mSearchView.getQuery().toString();
+        outState.putString("query", mQuery);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        mQuery = savedInstanceState.getString("query");
+        mSearchView.setQuery(mQuery, true);
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "onCreateLoader is called...");
 
-        return new BookLoader(BookActivity.this, BOOKS_API_URL);
+        mQuery = mSearchView.getQuery().toString();
+        return new BookLoader(BookActivity.this, mQuery);
     }
 
     @Override

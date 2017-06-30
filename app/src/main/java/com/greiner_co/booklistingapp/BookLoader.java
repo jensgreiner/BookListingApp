@@ -16,11 +16,11 @@ class BookLoader extends AsyncTaskLoader<List<Book>> {
 
     private static final String LOG_TAG = BookLoader.class.getName();
 
-    private final String mUrl;
+    private final String mQuery;
 
-    public BookLoader(Context context, String url) {
+    public BookLoader(Context context, String query) {
         super(context);
-        this.mUrl = url;
+        this.mQuery = query;
     }
 
     @Override
@@ -35,11 +35,11 @@ class BookLoader extends AsyncTaskLoader<List<Book>> {
 
         Log.d(LOG_TAG, "loadInBackground is called...");
 
-        if(TextUtils.isEmpty(mUrl)) {
+        if(TextUtils.isEmpty(mQuery)) {
             return null;
         }
 
-        List<Book> books = QueryUtils.fetchBookData(mUrl);
+        List<Book> books = QueryUtils.fetchBookData(mQuery);
         return books;
     }
 }

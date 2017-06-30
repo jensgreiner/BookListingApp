@@ -26,15 +26,16 @@ import javax.net.ssl.HttpsURLConnection;
 
 public final class QueryUtils {
     private static final String LOG_TAG = QueryUtils.class.getName();
+    private static final String BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q=";
 
     private QueryUtils() {
         // intentionally left blank - no one could create an object from it
     }
 
-    public static List<Book> fetchBookData(String requestUrl) {
+    public static List<Book> fetchBookData(String query) {
         Log.d(LOG_TAG, "fetchBookData is called...");
 
-        URL url = createUrl(requestUrl);
+        URL url = createUrl(query);
 
         String jsonResponse = null;
         try {
@@ -79,25 +80,31 @@ public final class QueryUtils {
                 // Extract the value for the key called "title"
                 String title = volumeInfo.getString("title");
 
-                // @link https://stackoverflow.com/a/10147984/1469260
-                JSONArray authors = volumeInfo.getJSONArray("authors");
-                String strings[] = new String[authors.length()];
-                for (int j = 0; j < strings.length; j++) {
-                    strings[j] = authors.getString(j);
+                String author;
+                if(volumeInfo.has("authors")) {
+                    // @link https://stackoverflow.com/a/10147984/1469260
+                    JSONArray authors = volumeInfo.getJSONArray("authors");
+                    String strings[] = new String[authors.length()];
+                    for (int j = 0; j < strings.length; j++) {
+                        strings[j] = authors.getString(j);
+                    }
+                    // @link https://stackoverflow.com/a/5283753/1469260
+                    StringBuilder builder = new StringBuilder();
+                    for (String authorString : strings) {
+                        builder.append(authorString);
+                        builder.append(", ");
+                    }
+                    // @link https://stackoverflow.com/a/205712/1469260
+                    author = builder.length() > 0 ? builder.substring(0, builder.length() - 2) : "";
+                } else {
+                    author = "n/a";
                 }
-                // @link https://stackoverflow.com/a/5283753/1469260
-                StringBuilder builder = new StringBuilder();
-                for (String authorString : strings) {
-                    builder.append(authorString);
-                    builder.append(", ");
-                }
-                // @link https://stackoverflow.com/a/205712/1469260
-                String author = builder.length() > 0 ? builder.substring(0, builder.length() - 2): "";
 
+                String url = volumeInfo.getString("infoLink");
 
                 // Create a new {@link Earthquake} object with the magnitude, location, time,
                 // and url from the JSON response and add it to the list of earthquakes
-                books.add(new Book(title, author));
+                books.add(new Book(title, author, url));
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Problem parsing the book JSON results", e);
@@ -172,10 +179,11 @@ public final class QueryUtils {
         return output.toString();
     }
 
-    private static URL createUrl(String stringUrl) {
+    private static URL createUrl(String query) {
         URL url = null;
         try {
-            url = new URL(stringUrl);
+            url = new URL(BOOKS_API_URL + query);
+            Log.d(LOG_TAG, url.toString());
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, "Error with creating URL", e);
         }

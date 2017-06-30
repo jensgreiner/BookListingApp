@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides a view for the books listview
@@ -21,7 +21,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
     private final Context mContext;
 
-    public BookAdapter(@NonNull Context context, @NonNull ArrayList<Book> books) {
+    public BookAdapter(@NonNull Context context, @NonNull List<Book> books) {
         super(context, 0, books);
         this.mContext = context;
     }

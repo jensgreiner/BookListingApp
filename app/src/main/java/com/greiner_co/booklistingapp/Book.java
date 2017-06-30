@@ -8,10 +8,12 @@ package com.greiner_co.booklistingapp;
 public class Book {
     private final String mBookTitle;
     private final String mBookAuthor;
+    private final String mBookUrl;
 
-    public Book(String bookTitle, String bookAuthor) {
+    public Book(String bookTitle, String bookAuthor, String bookUrl) {
         this.mBookTitle = bookTitle;
         this.mBookAuthor = bookAuthor;
+        this.mBookUrl = bookUrl;
     }
 
     public String getmBookTitle() {
@@ -22,11 +24,16 @@ public class Book {
         return mBookAuthor;
     }
 
+    public String getmBookUrl() {
+        return mBookUrl;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
                 "mBookTitle='" + mBookTitle + '\'' +
                 ", mBookAuthor='" + mBookAuthor + '\'' +
+                ", mBookUrl='" + mBookUrl + '\'' +
                 '}';
     }
 }
