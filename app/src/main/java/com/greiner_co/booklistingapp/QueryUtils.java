@@ -64,49 +64,53 @@ public final class QueryUtils {
             // Create a JSONObject from the JSON response string
             JSONObject root = new JSONObject(jsonResponse);
 
-            // Extract the JSONArray associated with the key called "items",
-            // which represents a list of features (or earthquakes).
-            JSONArray items = root.getJSONArray("items");
+            if (root.has("items")) {
+                // Extract the JSONArray associated with the key called "items",
+                // which represents a list of features (or books).
+                JSONArray items = root.getJSONArray("items");
 
-            // For each earthquake in the earthquakeArray, create an {@link Earthquake} object
-            for (int i = 0; i < items.length(); i++) {
+                // For each book in the items Array, create an {@link Book} object
+                for (int i = 0; i < items.length(); i++) {
 
-                // Get a single earthquake at position i within the list of earthquakes
-                JSONObject book = items.getJSONObject(i);
+                    // Get a single book at position i within the list of books
+                    JSONObject book = items.getJSONObject(i);
 
-                // For a given book, extract the JSONObject associated with the
-                // key called "volumeInfo", which represents a list of volume information
-                // for that book.
-                JSONObject volumeInfo = book.getJSONObject("volumeInfo");
+                    // For a given book, extract the JSONObject associated with the
+                    // key called "volumeInfo", which represents a list of volume information
+                    // for that book.
+                    JSONObject volumeInfo = book.getJSONObject("volumeInfo");
 
-                // Extract the value for the key called "title"
-                String title = volumeInfo.getString("title");
+                    // Extract the value for the key called "title"
+                    String title = volumeInfo.getString("title");
 
-                String author;
-                if(volumeInfo.has("authors")) {
-                    // @link https://stackoverflow.com/a/10147984/1469260
-                    JSONArray authors = volumeInfo.getJSONArray("authors");
-                    String strings[] = new String[authors.length()];
-                    for (int j = 0; j < strings.length; j++) {
-                        strings[j] = authors.getString(j);
+                    String author;
+                    if (volumeInfo.has("authors")) {
+                        // @link https://stackoverflow.com/a/10147984/1469260
+                        JSONArray authors = volumeInfo.getJSONArray("authors");
+                        String strings[] = new String[authors.length()];
+                        for (int j = 0; j < strings.length; j++) {
+                            strings[j] = authors.getString(j);
+                        }
+                        // @link https://stackoverflow.com/a/5283753/1469260
+                        StringBuilder builder = new StringBuilder();
+                        for (String authorString : strings) {
+                            builder.append(authorString);
+                            builder.append(", ");
+                        }
+                        // @link https://stackoverflow.com/a/205712/1469260
+                        author = builder.length() > 0 ? builder.substring(0, builder.length() - 2) : "";
+                    } else {
+                        author = "n/a";
                     }
-                    // @link https://stackoverflow.com/a/5283753/1469260
-                    StringBuilder builder = new StringBuilder();
-                    for (String authorString : strings) {
-                        builder.append(authorString);
-                        builder.append(", ");
-                    }
-                    // @link https://stackoverflow.com/a/205712/1469260
-                    author = builder.length() > 0 ? builder.substring(0, builder.length() - 2) : "";
-                } else {
-                    author = "n/a";
+
+                    String url = volumeInfo.getString("infoLink");
+
+                    // Create a new {@link Book} object with the title, authors,
+                    // and url from the JSON response and add it to the list of books
+                    books.add(new Book(title, author, url));
                 }
-
-                String url = volumeInfo.getString("infoLink");
-
-                // Create a new {@link Earthquake} object with the magnitude, location, time,
-                // and url from the JSON response and add it to the list of earthquakes
-                books.add(new Book(title, author, url));
+            } else {
+                return null;
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Problem parsing the book JSON results", e);

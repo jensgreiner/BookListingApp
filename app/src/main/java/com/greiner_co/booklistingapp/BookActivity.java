@@ -85,6 +85,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
                     getLoaderManager().restartLoader(0, null, BookActivity.this);
                     return false;
                 } else {
+                    // get rid of items of previous query
+                    mAdapter.clear();
                     // Hide the progressBar spinner after loading
                     mLoadingIndicator.setVisibility(View.GONE);
 
