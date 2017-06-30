@@ -18,7 +18,7 @@ class BookLoader extends AsyncTaskLoader<List<Book>> {
 
     private final String mQuery;
 
-    public BookLoader(Context context, String query) {
+    BookLoader(Context context, String query) {
         super(context);
         this.mQuery = query;
     }
@@ -39,6 +39,7 @@ class BookLoader extends AsyncTaskLoader<List<Book>> {
             return null;
         }
 
+        //noinspection UnnecessaryLocalVariable
         List<Book> books = QueryUtils.fetchBookData(mQuery);
         return books;
     }

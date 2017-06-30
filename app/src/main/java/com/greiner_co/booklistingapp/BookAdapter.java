@@ -13,10 +13,11 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Provides a view for the books listview
+ * Provides a view for the books ListView
  * Created by Jens Greiner on 29.06.17.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class BookAdapter extends ArrayAdapter<Book> {
 
     private final Context mContext;

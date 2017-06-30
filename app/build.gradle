@@ -20,6 +20,7 @@ android {
     defaultConfig {
         applicationId "com.greiner_co.booklistingapp"
         minSdkVersion 23
+        //noinspection OldTargetApi
         targetSdkVersion 25
         versionCode 1
         versionName "1.0" + code

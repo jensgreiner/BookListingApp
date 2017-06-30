@@ -5,6 +5,7 @@ package com.greiner_co.booklistingapp;
  * Created by Jens Greiner on 29.06.17.
  */
 
+@SuppressWarnings("WeakerAccess")
 public class Book {
     private final String mBookTitle;
     private final String mBookAuthor;

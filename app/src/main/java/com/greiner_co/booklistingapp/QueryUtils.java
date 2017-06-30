@@ -24,6 +24,7 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Jens Greiner on 29.06.17.
  */
 
+@SuppressWarnings("WeakerAccess")
 public final class QueryUtils {
     private static final String LOG_TAG = QueryUtils.class.getName();
     private static final String BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q=";
@@ -44,6 +45,7 @@ public final class QueryUtils {
             Log.e(LOG_TAG, "Problem making the HTTP request", ioe);
         }
 
+        //noinspection UnnecessaryLocalVariable
         List<Book> books = extractBooks(jsonResponse);
 
         return books;
@@ -73,7 +75,7 @@ public final class QueryUtils {
                 JSONObject book = items.getJSONObject(i);
 
                 // For a given book, extract the JSONObject associated with the
-                // key called "volumeInfo", which represents a list of volume informations
+                // key called "volumeInfo", which represents a list of volume information
                 // for that book.
                 JSONObject volumeInfo = book.getJSONObject("volumeInfo");
 

@@ -23,16 +23,14 @@ import java.util.List;
 public class BookActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>> {
 
     private static final String LOG_TAG = BookActivity.class.getName();
-    private TextView mEmptyListTextView;
-    private BookAdapter mAdapter;
-    private SearchView mSearchView;
-
     /**
      * Constant value for the book loader ID. We can choose any integer.
      * This really only comes into play if you're using multiple loaders.
      */
     private static final int BOOK_LOADER_ID = 1;
-
+    private TextView mEmptyListTextView;
+    private BookAdapter mAdapter;
+    private SearchView mSearchView;
     private View mLoadingIndicator;
     private String mQuery;
 
@@ -42,7 +40,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         setContentView(R.layout.book_activity);
 
         mSearchView = (SearchView) findViewById(R.id.search_view);
-        //mSearchView.setSubmitButtonEnabled(true);
+        mSearchView.setQueryHint(getString(R.string.query_hint));
 
         ListView bookListView = (ListView) findViewById(R.id.list);
 
@@ -50,6 +48,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mEmptyListTextView = (TextView) findViewById(R.id.empty_view_message);
         bookListView.setEmptyView(mEmptyListTextView);
 
+        //noinspection Convert2Diamond
         final List<Book> books = new ArrayList<Book>();
         mAdapter = new BookAdapter(this, books);
         
@@ -141,6 +140,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         super.onSaveInstanceState(outState);
     }
 
+    // Get the saved state and redo the query
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         mQuery = savedInstanceState.getString("query");
@@ -175,7 +175,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         if (books != null && !books.isEmpty()) {
             mAdapter.addAll(books);
         }
-
     }
 
     @Override
